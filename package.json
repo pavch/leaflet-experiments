@@ -20,7 +20,7 @@
     "@angular/router": "~13.2.0",
     "@asymmetrik/ngx-leaflet": "^8.1.0",
     "leaflet": "^1.7.1",
-    "rxjs": "~7.5.0",
+    "rxjs": "~7.5.2",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"
   },
