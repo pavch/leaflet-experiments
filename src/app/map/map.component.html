@@ -1,7 +1,22 @@
-<div style="height: 1000px;"
-     leaflet 
-     [leafletOptions]="options"
-     [leafletLayersControl]="layersControl"
-     >
-     <div *ngIf="homeCircleShown" [leafletLayer]="homeCircleLayer"></div>
+<div class="main">
+     <div class="searchCoordinates">
+          <div class="searchRow">
+               <label>Latitude:</label>
+               <input type="text" id="latCoord" name="latCoord" [ngModel]="latCoord"
+                         (ngModelChange)="onLatChanged($event)">
+          </div>
+          <div class="searchRow">
+               <label>Longitude:</label>
+               <input type="text" id="longCoord" name="longCoord" [ngModel]="longCoord"
+                         (ngModelChange)="onLongChanged($event)">
+          </div>
+
+     </div>
+     <div class="map" leaflet 
+          [leafletOptions]="options" 
+          (leafletClick)="onMapClick($event)"
+          [leafletLayersControl]="layersControl"         
+          [leafletCenter]="center">
+          <div [leafletLayer]="currentPositionMarker"></div>
+     </div>
 </div>
