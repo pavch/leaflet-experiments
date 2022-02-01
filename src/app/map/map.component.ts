@@ -61,13 +61,12 @@ export class MapComponent implements OnInit {
     };
 
     this.populateLayers();
-    console.log(this.baseLayers);
     this.layersControl = {
 
       baseLayers: this.baseLayers,
       overlays: {
         'Circle': circle([this.latCoord, this.longCoord], { radius: 5000 }),
-        'Square': polygon([[42.698334, 23.319941], [42.698334, 23.319941]])
+        'Square': polygon([[42.69581, 23.306808], [42.69581, 23.338737], [42.726587, 23.338737], [42.726587, 23.306808]])
       }
     };
 
