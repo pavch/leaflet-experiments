@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { tileLayer, latLng, circle, polygon, Marker, marker, LatLng, LeafletMouseEvent, TileLayer, Polygon, Circle } from 'leaflet';
+import { tileLayer, latLng, circle, polygon, Marker, marker, LatLng, LeafletMouseEvent, TileLayer, Polygon, Circle, icon } from 'leaflet';
 import { WMSService } from '../services/WMSService';
 
 type OverlayUnion = Polygon | Circle;
@@ -85,7 +85,14 @@ export class MapComponent implements OnInit {
     this.latCoord = parseFloat(event.latlng.lat.toFixed(6));
     this.longCoord = parseFloat(event.latlng.lng.toFixed(6));
     this.center = latLng(parseFloat(event.latlng.lat.toFixed(6)),  parseFloat(event.latlng.lng.toFixed(6)));
-    this.currentPositionMarker = marker([this.latCoord, this.longCoord]);
+    this.currentPositionMarker = marker([this.latCoord, this.longCoord],  {
+      icon: icon({
+        iconSize: [ 25, 41 ],
+        iconAnchor: [ 13, 41 ],
+        iconUrl: 'assets/marker-icon.png',
+        shadowUrl: 'assets/marker-shadow.png'
+      })
+    });
   }
 
 
