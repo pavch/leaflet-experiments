@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { tileLayer, latLng, circle, polygon, Marker, marker, LatLng, LeafletMouseEvent, TileLayer, Polygon, Circle, icon } from 'leaflet';
+import { take, tap } from 'rxjs/operators';
 import { WMSService } from '../services/WMSService';
 
 type OverlayUnion = Polygon | Circle;
@@ -13,7 +14,7 @@ interface WMSLayer {
   name: string;
   id: string;
   server: string;
-} 
+}
 
 @Component({
   selector: 'app-map',
@@ -35,21 +36,11 @@ export class MapComponent implements OnInit {
 
   constructor(
     private wmsService: WMSService
-  ) {}
+  ) { }
 
-  populateLayers() {
-    this.wmsService.getWMSLayerByName('columbia').subscribe((res: any) => {
-      res.layers.forEach((layer: any) => {
-        this.baseLayers[layer.name] = tileLayer.wms(res.geoserverURL, {
-          layers: layer.id
-        })
-      })
-    })
-
-  }
 
   ngOnInit() {
-    
+
     this.center = latLng(this.latCoord, this.longCoord);
 
     this.options = {
@@ -60,18 +51,29 @@ export class MapComponent implements OnInit {
       center: this.center
     };
 
-    this.populateLayers();
-    this.layersControl = {
+    this.populateLayers().pipe(take(1)).subscribe(() => {
+      this.layersControl = {
+        baseLayers: this.baseLayers,
+        overlays: {
+          'Circle': circle([this.latCoord, this.longCoord], { radius: 5000 }),
+          'Square': polygon([[42.69581, 23.306808], [42.69581, 23.338737], [42.726587, 23.338737], [42.726587, 23.306808]])
+        }
+      };
+      this.currentPositionMarker = marker([this.latCoord, this.longCoord]);
+    });
 
-      baseLayers: this.baseLayers,
-      overlays: {
-        'Circle': circle([this.latCoord, this.longCoord], { radius: 5000 }),
-        'Square': polygon([[42.69581, 23.306808], [42.69581, 23.338737], [42.726587, 23.338737], [42.726587, 23.306808]])
-      }
-    };
-
-    this.currentPositionMarker = marker([this.latCoord, this.longCoord]);
   }
+
+  private populateLayers() {
+    return this.wmsService.getWMSLayerByName('columbia').pipe(tap((res: any) => {
+      for (const layer of res.layers) {
+        this.baseLayers[layer.name] = tileLayer.wms(res.geoserverURL, {
+          layers: layer.id
+        })
+      }
+    }))
+  }
+
 
   onLatChanged(lat: number) {
     this.center = latLng(lat, this.longCoord);
@@ -80,15 +82,15 @@ export class MapComponent implements OnInit {
   onLongChanged(long: number) {
     this.center = latLng(this.latCoord, long);
   }
-  
+
   onMapClick(event: LeafletMouseEvent) {
     this.latCoord = parseFloat(event.latlng.lat.toFixed(6));
     this.longCoord = parseFloat(event.latlng.lng.toFixed(6));
-    this.center = latLng(parseFloat(event.latlng.lat.toFixed(6)),  parseFloat(event.latlng.lng.toFixed(6)));
-    this.currentPositionMarker = marker([this.latCoord, this.longCoord],  {
+    this.center = latLng(parseFloat(event.latlng.lat.toFixed(6)), parseFloat(event.latlng.lng.toFixed(6)));
+    this.currentPositionMarker = marker([this.latCoord, this.longCoord], {
       icon: icon({
-        iconSize: [ 25, 41 ],
-        iconAnchor: [ 13, 41 ],
+        iconSize: [25, 41],
+        iconAnchor: [13, 41],
         iconUrl: 'assets/marker-icon.png',
         shadowUrl: 'assets/marker-shadow.png'
       })
