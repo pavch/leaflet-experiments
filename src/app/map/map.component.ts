@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { tileLayer, latLng, circle, polygon, Marker, marker, LatLng, LeafletMouseEvent, TileLayer, Polygon, Circle, icon } from 'leaflet';
+import { map } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
 import { WMSService } from '../services/WMSService';
 
@@ -51,9 +52,9 @@ export class MapComponent implements OnInit {
       center: this.center
     };
 
-    this.populateLayers().pipe(take(1)).subscribe(() => {
+    this.populateLayers().pipe(take(1)).subscribe((layers) => {
       this.layersControl = {
-        baseLayers: this.baseLayers,
+        baseLayers: {...this.baseLayers, ...layers },
         overlays: {
           'Circle': circle([this.latCoord, this.longCoord], { radius: 5000 }),
           'Square': polygon([[42.69581, 23.306808], [42.69581, 23.338737], [42.726587, 23.338737], [42.726587, 23.306808]])
@@ -65,12 +66,14 @@ export class MapComponent implements OnInit {
   }
 
   private populateLayers() {
-    return this.wmsService.getWMSLayerByName('columbia').pipe(tap((res: any) => {
+    return this.wmsService.getWMSLayerByName('columbia').pipe(map((res: any) => {
+      const baseLayers: Record<string, TileLayer.WMS> = {};
       for (const layer of res.layers) {
-        this.baseLayers[layer.name] = tileLayer.wms(res.geoserverURL, {
+        baseLayers[layer.name] = tileLayer.wms(res.geoserverURL, {
           layers: layer.id
         })
       }
+      return baseLayers
     }))
   }
 
